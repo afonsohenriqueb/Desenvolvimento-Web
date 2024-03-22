@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jogo da Velha</title>
+  <!-- Importando Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Estilos adicionais -->
+  <style>
+    /* Estilo para as células do tabuleiro */
+    .celula {
+      width: 100px;
+      height: 100px;
+      font-size: 36px;
+      text-align: center;
+      cursor: pointer;
+      border: 2px solid black;
+    }
+
+    /* Estilo para o tabuleiro */
+    #tabuleiro {
+      width: 306px;
+      height: 306px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+    }
+  </style>
+</head>
+<body>
+
+<div class="container mt-5">
+  <div class="row">
+    <!-- Título do Jogo da Velha -->
+    <h1 class="text-center mb-4">Jogo da Velha</h1>
+    <!-- Div para o tabuleiro -->
+    <div id="tabuleiro"></div>
+  </div>
+  <div class="row mt-3">
+    <!-- Mensagem de status do jogo -->
+    <div id="mensagem" class="col text-center"></div>
+  </div>
+</div>
+
+<script>
+  // Quando o conteúdo da página é carregado
+  document.addEventListener('DOMContentLoaded', function() {
+    // Variáveis para representar o tabuleiro, a mensagem de status e o jogador atual
+    const tabuleiroElemento = document.getElementById('tabuleiro');
+    const mensagemElemento = document.getElementById('mensagem');
+    let jogadorAtual = Math.random() < 0.5 ? 'X' : 'O'; // Define o jogador inicial aleatoriamente
+    let jogoTerminou = false;
+    let estadoTabuleiro = ['', '', '', '', '', '', '', '', '']; // Estado inicial do tabuleiro
+    const padroesVitoria = [
+      [0, 1, 2], [3, 4, 5], [6, 7, 8], // Linhas
+      [0, 3, 6], [1, 4, 7], [2, 5, 8], // Colunas
+      [0, 4, 8], [2, 4, 6] // Diagonais
+    ];
+
+    // Função para renderizar o tabuleiro
+    function renderizarTabuleiro() {
+      // Limpa o conteúdo existente do tabuleiro
+      tabuleiroElemento.innerHTML = '';
+      // Itera sobre as células do tabuleiro e adiciona eventos de clique
+      estadoTabuleiro.forEach((celula, indice) => {
+        const celulaElemento = document.createElement('div');
+        celulaElemento.classList.add('border', 'celula', 'd-flex', 'align-items-center', 'justify-content-center');
+        celulaElemento.dataset.indice = indice;
+        celulaElemento.innerText = celula;
+        celulaElemento.addEventListener('click', handleClickCelula);
+        tabuleiroElemento.appendChild(celulaElemento);
+      });
+    }
+
+    // Função para lidar com o clique em uma célula do tabuleiro
+    function handleClickCelula(evento) {
+      // Verifica se o jogo terminou ou se a célula já foi marcada
+      if (jogoTerminou || evento.target.innerText !== '') return;
+      // Obtém o índice da célula clicada
+      const indice = evento.target.dataset.indice;
+      // Atualiza o estado do tabuleiro e exibe a marcação do jogador atual
+      estadoTabuleiro[indice] = jogadorAtual;
+      evento.target.innerText = jogadorAtual;
+      // Verifica se há um vencedor após o movimento atual
+      if (verificarVencedor(jogadorAtual)) {
+        mensagemElemento.innerText = `${jogadorAtual} venceu!`;
+        jogoTerminou = true;
+      } else if (estadoTabuleiro.every(celula => celula !== '')) {
+        mensagemElemento.innerText = 'Empate!';
+        jogoTerminou = true;
+      } else {
+        // Troca para o próximo jogador
+        jogadorAtual = jogadorAtual === 'X' ? 'O' : 'X';
+        mensagemElemento.innerText = `É a vez do jogador ${jogadorAtual}`;
+      }
+    }
+
+    // Função para verificar se há um vencedor
+    function verificarVencedor(jogador) {
+      return padroesVitoria.some(padrao => {
+        return padrao.every(indice => estadoTabuleiro[indice] === jogador);
+      });
+    }
+
+    // Inicializa o jogo renderizando o tabuleiro e exibindo a mensagem de status
+    renderizarTabuleiro();
+    mensagemElemento.innerText = `É a vez do jogador ${jogadorAtual}`;
+  });
+</script>
+
+</body>
+</html>
